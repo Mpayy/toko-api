@@ -35,6 +35,7 @@ func ProvideValidator() *validator.Validate {
 func InitializedServer() *http.Server {
 	wire.Build(
 		app.NewDb,
+		app.NewLogger,
 		ProvideValidator,
 		categorySet,
 		productSet,

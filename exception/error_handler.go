@@ -6,18 +6,32 @@ import (
 	"github.com/Mpayy/toko-api/helper"
 	"github.com/Mpayy/toko-api/model/web"
 	"github.com/go-playground/validator/v10"
+	"github.com/sirupsen/logrus"
 )
 
-func ErrorHandler(writer http.ResponseWriter, request *http.Request, err interface{}) {
-	if notFoundError(writer, request, err) {
-		return
-	}
+//func ErrorHandler(writer http.ResponseWriter, request *http.Request, err interface{}) {
+//	if notFoundError(writer, request, err) {
+//		return
+//	}
+//
+//	if validationError(writer, request, err) {
+//		return
+//	}
+//
+//	internalServerError(writer, request, err)
+//}
 
-	if validationError(writer, request, err) {
-		return
+func NewErrorHandler(logger *logrus.Logger) func(http.ResponseWriter, *http.Request, interface{}) {
+	return func(writer http.ResponseWriter, request *http.Request, err interface{}) {
+		logger.WithField("error", err).Error("Terjadi Error")
+		if notFoundError(writer, request, err) {
+			return
+		}
+		if validationError(writer, request, err) {
+			return
+		}
+		internalServerError(writer, request, err)
 	}
-
-	internalServerError(writer, request, err)
 }
 
 func validationError(writer http.ResponseWriter, request *http.Request, err interface{}) bool {

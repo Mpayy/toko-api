@@ -10,19 +10,22 @@ import (
 	"github.com/Mpayy/toko-api/model/web"
 	"github.com/Mpayy/toko-api/repository"
 	"github.com/go-playground/validator/v10"
+	"github.com/sirupsen/logrus"
 )
 
 type ProductServiceImpl struct {
 	ProductRepository repository.ProductRepository
 	DB                *sql.DB
 	Validate          *validator.Validate
+	Logger            *logrus.Logger
 }
 
-func NewProductService(productRepository repository.ProductRepository, DB *sql.DB, validate *validator.Validate) ProductService {
+func NewProductService(productRepository repository.ProductRepository, DB *sql.DB, validate *validator.Validate, logger *logrus.Logger) ProductService {
 	return &ProductServiceImpl{
 		ProductRepository: productRepository,
 		DB:                DB,
 		Validate:          validate,
+		Logger:            logger,
 	}
 }
 
@@ -41,6 +44,7 @@ func (service *ProductServiceImpl) CreateProduct(ctx context.Context, requestCre
 	}
 
 	product = service.ProductRepository.CreateProduct(ctx, tx, product)
+	service.Logger.WithField("product_id", product.Id).Info("Product created")
 
 	return helper.ToProductResponse(product)
 }
@@ -83,6 +87,7 @@ func (service *ProductServiceImpl) UpdateProduct(ctx context.Context, requestUpd
 	product.Stock = requestUpdate.Stock
 
 	product = service.ProductRepository.UpdateProduct(ctx, tx, product)
+	service.Logger.WithField("product_id", product.Id).Info("Product updated")
 	return helper.ToProductResponse(product)
 }
 
@@ -97,4 +102,5 @@ func (service *ProductServiceImpl) DeleteProduct(ctx context.Context, productId 
 	}
 
 	service.ProductRepository.DeleteProduct(ctx, tx, product)
+	service.Logger.WithField("product_id", product.Id).Info("Product deleted")
 }

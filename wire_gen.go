@@ -27,13 +27,14 @@ func InitializedServer() *http.Server {
 	productRepository := repository.NewProductRepository()
 	db := app.NewDb()
 	validate := ProvideValidator()
-	productService := service.NewProductService(productRepository, db, validate)
+	logger := app.NewLogger()
+	productService := service.NewProductService(productRepository, db, validate, logger)
 	productsController := controller.NewProductsController(productService)
 	categoryRepository := repository.NewCategoryRepository()
-	categoryService := service.NewCategoryService(categoryRepository, db, validate)
+	categoryService := service.NewCategoryService(categoryRepository, db, validate, logger)
 	categoryController := controller.NewCategoryController(categoryService)
-	router := app.NewRouter(productsController, categoryController)
-	authMiddleware := middleware.NewMiddleware(router)
+	router := app.NewRouter(productsController, categoryController, logger)
+	authMiddleware := middleware.NewMiddleware(router, logger)
 	server := NewServer(authMiddleware)
 	return server
 }

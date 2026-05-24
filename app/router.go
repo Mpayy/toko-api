@@ -4,9 +4,10 @@ import (
 	"github.com/Mpayy/toko-api/controller"
 	"github.com/Mpayy/toko-api/exception"
 	"github.com/julienschmidt/httprouter"
+	"github.com/sirupsen/logrus"
 )
 
-func NewRouter(productController controller.ProductsController, categoryController controller.CategoryController) *httprouter.Router {
+func NewRouter(productController controller.ProductsController, categoryController controller.CategoryController, logger *logrus.Logger) *httprouter.Router {
 	router := httprouter.New()
 
 	router.POST("/api/products", productController.CreateProduct)
@@ -21,7 +22,7 @@ func NewRouter(productController controller.ProductsController, categoryControll
 	router.PUT("/api/categories/:categoryId", categoryController.UpdateCategory)
 	router.DELETE("/api/categories/:categoryId", categoryController.DeleteCategory)
 
-	router.PanicHandler = exception.ErrorHandler
+	router.PanicHandler = exception.NewErrorHandler(logger)
 
 	return router
 }

@@ -10,19 +10,22 @@ import (
 	"github.com/Mpayy/toko-api/model/web"
 	"github.com/Mpayy/toko-api/repository"
 	"github.com/go-playground/validator/v10"
+	"github.com/sirupsen/logrus"
 )
 
 type CategoryServiceImpl struct {
 	CategoryRepository repository.CategoryRepository
 	DB                 *sql.DB
 	Validate           *validator.Validate
+	Logger             *logrus.Logger
 }
 
-func NewCategoryService(categoryRepository repository.CategoryRepository, db *sql.DB, validate *validator.Validate) CategoryService {
+func NewCategoryService(categoryRepository repository.CategoryRepository, db *sql.DB, validate *validator.Validate, logger *logrus.Logger) CategoryService {
 	return &CategoryServiceImpl{
 		CategoryRepository: categoryRepository,
 		DB:                 db,
 		Validate:           validate,
+		Logger:             logger,
 	}
 }
 
@@ -38,7 +41,7 @@ func (service *CategoryServiceImpl) CreateCategory(ctx context.Context, requestC
 	}
 
 	category = service.CategoryRepository.CreateCategory(ctx, tx, category)
-
+	service.Logger.WithField("category", category.Id).Info("Category created")
 	return helper.ToCategoryResponse(category)
 }
 
@@ -79,6 +82,7 @@ func (service *CategoryServiceImpl) UpdateCategory(ctx context.Context, requestU
 	category.Name = requestUpdate.Name
 
 	category = service.CategoryRepository.UpdateCategory(ctx, tx, category)
+	service.Logger.WithField("category", category.Id).Info("Category updated")
 	return helper.ToCategoryResponse(category)
 }
 
@@ -93,4 +97,5 @@ func (service *CategoryServiceImpl) DeleteCategory(ctx context.Context, category
 	}
 
 	service.CategoryRepository.DeleteCategory(ctx, tx, category)
+	service.Logger.WithField("category", category.Id).Info("Category deleted")
 }
