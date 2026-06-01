@@ -22,7 +22,7 @@ import (
 //}
 
 func NewErrorHandler(logger *logrus.Logger) func(http.ResponseWriter, *http.Request, interface{}) {
-	return func(writer http.ResponseWriter, request *http.Request, err interface{}) {
+	return func(writer http.ResponseWriter, request *http.Request, err any) {
 		logger.WithField("error", err).Error("Terjadi Error")
 		if notFoundError(writer, request, err) {
 			return
@@ -34,7 +34,7 @@ func NewErrorHandler(logger *logrus.Logger) func(http.ResponseWriter, *http.Requ
 	}
 }
 
-func validationError(writer http.ResponseWriter, request *http.Request, err interface{}) bool {
+func validationError(writer http.ResponseWriter, _ *http.Request, err any) bool {
 	exception, ok := err.(validator.ValidationErrors)
 	if ok {
 		writer.Header().Set("Content-Type", "application/json")
@@ -42,7 +42,7 @@ func validationError(writer http.ResponseWriter, request *http.Request, err inte
 		webResponse := web.WebResponse{
 			Code:   http.StatusBadRequest,
 			Status: "Bad Request",
-			Data:   exception.Error(),
+			Data:   helper.TranslateValidationError(exception),
 		}
 		helper.WriteResponseBody(writer, webResponse)
 		return true
@@ -50,7 +50,7 @@ func validationError(writer http.ResponseWriter, request *http.Request, err inte
 	return false
 }
 
-func notFoundError(writer http.ResponseWriter, request *http.Request, err interface{}) bool {
+func notFoundError(writer http.ResponseWriter, _ *http.Request, err any) bool {
 	exception, ok := err.(NotFoundError)
 	if ok {
 		writer.Header().Set("Content-Type", "application/json")
@@ -67,7 +67,7 @@ func notFoundError(writer http.ResponseWriter, request *http.Request, err interf
 	return false
 }
 
-func internalServerError(writer http.ResponseWriter, request *http.Request, err interface{}) {
+func internalServerError(writer http.ResponseWriter, _ *http.Request, err any) {
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusInternalServerError)
 	webResponse := web.WebResponse{

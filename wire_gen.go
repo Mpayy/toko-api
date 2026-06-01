@@ -12,7 +12,6 @@ import (
 	"github.com/Mpayy/toko-api/middleware"
 	"github.com/Mpayy/toko-api/repository"
 	"github.com/Mpayy/toko-api/service"
-	"github.com/go-playground/validator/v10"
 	"github.com/google/wire"
 	"net/http"
 )
@@ -26,7 +25,7 @@ import (
 func InitializedServer() *http.Server {
 	productRepository := repository.NewProductRepository()
 	db := app.NewDb()
-	validate := ProvideValidator()
+	validate := app.NewValidator()
 	logger := app.NewLogger()
 	productService := service.NewProductService(productRepository, db, validate, logger)
 	productsController := controller.NewProductsController(productService)
@@ -44,7 +43,3 @@ func InitializedServer() *http.Server {
 var categorySet = wire.NewSet(repository.NewCategoryRepository, service.NewCategoryService, controller.NewCategoryController)
 
 var productSet = wire.NewSet(repository.NewProductRepository, service.NewProductService, controller.NewProductsController)
-
-func ProvideValidator() *validator.Validate {
-	return validator.New()
-}

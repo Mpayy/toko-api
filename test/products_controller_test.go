@@ -16,7 +16,6 @@ import (
 	"github.com/Mpayy/toko-api/middleware"
 	"github.com/Mpayy/toko-api/repository"
 	"github.com/Mpayy/toko-api/service"
-	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -33,14 +32,15 @@ func setupTestDb() *sql.DB {
 }
 
 func setupTestRouter(db *sql.DB) http.Handler {
-	validate := validator.New()
+	validate := app.NewValidator()
+	logger := app.NewLogger()
 	productRepository := repository.NewProductRepository()
-	productService := service.NewProductService(productRepository, db, validate)
+	productService := service.NewProductService(productRepository, db, validate, logger)
 	productsController := controller.NewProductsController(productService)
 
-	router := app.NewRouter(productsController)
+	router := app.NewRouter(productsController, nil, logger)
 
-	return middleware.NewProductMiddleware(router)
+	return middleware.NewMiddleware(router, logger)
 }
 
 func truncateProduct(db *sql.DB) {

@@ -1,7 +1,7 @@
 package web
 
 type ProductCreateRequest struct {
-	Name  string `validate:"required,max=100,min=1" json:"name"`
-	Price int    `validate:"required" json:"price"`
-	Stock int    `validate:"required" json:"stock"`
+	Name  string `validate:"required,min=3,max=100" json:"name"`
+	Price int    `validate:"required,gt=0,valid_price" json:"price"`
+	Stock int    `validate:"required,min=0" json:"stock"`
 }
