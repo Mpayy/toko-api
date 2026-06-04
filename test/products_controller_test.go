@@ -32,6 +32,8 @@ func setupTestDb() *sql.DB {
 }
 
 func setupTestRouter(db *sql.DB) http.Handler {
+
+	config := app.NewViper()
 	validate := app.NewValidator()
 	logger := app.NewLogger()
 	productRepository := repository.NewProductRepository()
@@ -40,7 +42,7 @@ func setupTestRouter(db *sql.DB) http.Handler {
 
 	router := app.NewRouter(productsController, nil, logger)
 
-	return middleware.NewMiddleware(router, logger)
+	return middleware.NewMiddleware(config, router, logger)
 }
 
 func truncateProduct(db *sql.DB) {

@@ -23,8 +23,9 @@ import (
 // Injectors from injector.go:
 
 func InitializedServer() *http.Server {
+	viper := app.NewViper()
 	productRepository := repository.NewProductRepository()
-	db := app.NewDb()
+	db := app.NewDb(viper)
 	validate := app.NewValidator()
 	logger := app.NewLogger()
 	productService := service.NewProductService(productRepository, db, validate, logger)
@@ -33,8 +34,8 @@ func InitializedServer() *http.Server {
 	categoryService := service.NewCategoryService(categoryRepository, db, validate, logger)
 	categoryController := controller.NewCategoryController(categoryService)
 	router := app.NewRouter(productsController, categoryController, logger)
-	authMiddleware := middleware.NewMiddleware(router, logger)
-	server := NewServer(authMiddleware)
+	authMiddleware := middleware.NewMiddleware(viper, router, logger)
+	server := NewServer(viper, authMiddleware)
 	return server
 }
 

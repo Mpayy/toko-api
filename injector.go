@@ -34,6 +34,7 @@ var productSet = wire.NewSet(
 
 func InitializedServer() *http.Server {
 	wire.Build(
+		app.NewViper,
 		app.NewDb,
 		app.NewLogger,
 		app.NewValidator,
