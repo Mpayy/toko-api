@@ -1,17 +1,22 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/Mpayy/toko-api/helper"
 	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/Mpayy/toko-api/middleware"
+	"github.com/spf13/viper"
 )
 
-func NewServer(authMiddleware *middleware.AuthMiddleware) *http.Server {
+func NewServer(config *viper.Viper, authMiddleware *middleware.AuthMiddleware) *http.Server {
+	port := config.GetString("APP_PORT")
+
+	addr := fmt.Sprintf(":%s", port)
 	return &http.Server{
-		Addr:    "localhost:8080",
+		Addr:    addr,
 		Handler: authMiddleware,
 	}
 }

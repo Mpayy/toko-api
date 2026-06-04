@@ -6,15 +6,17 @@ import (
 	"github.com/Mpayy/toko-api/helper"
 	"github.com/Mpayy/toko-api/model/web"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 type AuthMiddleware struct {
+	Config  *viper.Viper
 	Handler http.Handler
 	Logger  *logrus.Logger
 }
 
-func NewMiddleware(handler http.Handler, logger *logrus.Logger) *AuthMiddleware {
-	return &AuthMiddleware{Handler: handler, Logger: logger}
+func NewMiddleware(config *viper.Viper, handler http.Handler, logger *logrus.Logger) *AuthMiddleware {
+	return &AuthMiddleware{Config: config, Handler: handler, Logger: logger}
 }
 
 func (middleware *AuthMiddleware) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
@@ -23,7 +25,7 @@ func (middleware *AuthMiddleware) ServeHTTP(writer http.ResponseWriter, request 
 		"path":   request.URL.Path,
 	}).Info("Request received")
 
-	if "RAHASIA" == request.Header.Get("X-API-KEY") {
+	if middleware.Config.GetString("APP_API_KEY") == request.Header.Get("X-API-KEY") {
 		middleware.Handler.ServeHTTP(writer, request)
 		return
 	}
